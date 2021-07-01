@@ -1,0 +1,5 @@
+Django==2.1.5
+environs==9.3.2
+marshmallow==3.12.1
+python-dotenv==0.18.0
+pytz==2021.1
