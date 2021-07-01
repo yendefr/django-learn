@@ -1,4 +1,4 @@
-Django==2.1.5
+Django==2.2.24
 environs==9.3.2
 marshmallow==3.12.1
 python-dotenv==0.18.0
