@@ -2,7 +2,7 @@ from django.core.mail import send_mail
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView
 from .models import Post
-from .forms import EmailPostForm
+from .forms import EmailPostForm, CommentForm
 
 
 class PostListView(ListView):
@@ -14,7 +14,23 @@ class PostListView(ListView):
 
 def post_detail(request, post_id):
     post = get_object_or_404(Post, id=post_id, status='published')
-    return render(request, 'blog/post/detail.html', {'post': post})
+    comments = post.comments.filter(active=True)
+    comment = None
+    if request.method == 'POST':
+        comment_form = CommentForm(data=request.POST)
+        if comment_form.is_valid():
+            comment = comment_form.save(commit=False)
+            comment.post = post
+            comment.save()
+    else:
+        comment_form = CommentForm()
+
+    return render(request, 'blog/post/detail.html', {
+                                                     'post': post,
+                                                     'comments': comments,
+                                                     'comment': comment,
+                                                     'comment_form': comment_form,
+                                                     })
 
 
 def post_share(request, post_id):
@@ -31,7 +47,11 @@ def post_share(request, post_id):
                       .format(post_url, post.title, cd['comment'])
             send_mail(subject, message, '', [cd['to']])
             sent = True
-            return render(request, 'blog/post/share.html', {'post': post, 'form': form, 'sent': sent})
     else:
         form = EmailPostForm()
-        return render(request, 'blog/post/share.html', {'post': post, 'form': form, 'sent': sent})
+
+    return render(request, 'blog/post/share.html', {
+                                                    'post': post,
+                                                    'form': form,
+                                                    'sent': sent,
+                                                    })
