@@ -2,6 +2,13 @@
 {% block title %}{{ post.title }}{% endblock %}
 {% block content %}
     <h1>{{ post.title }}</h1>
+
+    {% with post.tags.all as tags %}
+        {% if tags %}
+            <p class="tags">Tags: {{ tags|join:", " }}</p>
+        {% endif %}
+    {% endwith %}
+
     <p class="date">Published {{ post.publish }} by {{ post.author }}</p>
     {{ post.body|linebreaks }}
     <p>
