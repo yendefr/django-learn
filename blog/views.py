@@ -1,6 +1,7 @@
 from django.core.mail import send_mail
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.shortcuts import render, get_object_or_404
+from django.db.models import Count
 from taggit.models import Tag
 from .models import Post
 from .forms import EmailPostForm, CommentForm
@@ -33,8 +34,14 @@ def post_list(request, tag_slug=None):
 
 def post_detail(request, post_id):
     post = get_object_or_404(Post, id=post_id, status='published')
+
     comments = post.comments.filter(active=True)
     comment = None
+
+    tags = post.tags.values_list('id', flat=True)
+    similar_posts = Post.published.filter(tags__in=tags).exclude(id=post.id)
+    similar_posts = similar_posts.annotate(same_tags=Count('tags')).order_by('-same_tags', '-publish')[:3]
+
     if request.method == 'POST':
         comment_form = CommentForm(data=request.POST)
         if comment_form.is_valid():
@@ -49,6 +56,7 @@ def post_detail(request, post_id):
                                                      'comments': comments,
                                                      'comment': comment,
                                                      'comment_form': comment_form,
+                                                     'similar_posts': similar_posts,
                                                      })
 
 

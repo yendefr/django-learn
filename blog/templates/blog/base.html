@@ -1,17 +1,21 @@
+{% load tags %}
 {% load static %}
 <!DOCTYPE html>
     <html>
     <head>
         <title>{% block title %}{% endblock %}</title>
-        <link href="{% static "css/blog.css" %}" rel="stylesheet">
+        <link href="{% static 'css/blog.css' %}" rel="stylesheet">
     </head>
     <body>
         <div id="content">
             {% block content %}{% endblock %}
         </div>
         <div id="sidebar">
-            <h2>Yendefr blog</h2>
-            <p>This is my blog.</p>
+            <h2><a href="{% url 'blog:post_list' %}">Yendefr blog</a></h2>
+            <p>Better then your blog, so now there are {% posts_count %} posts!</p>
+            <p>Smash to <a href="{% url 'blog:latest_posts_feed' %}">RSS</a> or I smash u</p>
+            <h3>Latest posts</h3>
+            {% show_latest_posts 3 %}
         </div>
     </body>
 </html>
